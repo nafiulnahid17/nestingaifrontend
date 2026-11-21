@@ -1319,26 +1319,24 @@ button:hover {
   width: 100vw;
   height: 100vh;
   min-height: 0;
-  padding: 16px 28px 48px;
+  padding: 0;
   overflow: hidden;
-  background: radial-gradient(
-    ellipse at 50% 60%,
-    #082b69 0,
-    #020d25 56%,
-    #010717 100%
-  );
+  background: #020c24;
+}
+.home.home-pixel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/landing-final.webp") center / cover no-repeat;
+  opacity: .22;
+  pointer-events: none;
 }
 .landing-frame {
   position: relative;
-  width: min(100%, calc((100vh - 64px) * 16 / 9), 1536px);
+  width: min(100vw, calc(100vh * 16 / 9));
   aspect-ratio: 16 / 9;
   flex: none;
-  overflow: hidden;
-  border: 1px solid #154481;
-  border-radius: 14px;
-  box-shadow:
-    0 22px 70px #000b,
-    0 0 32px #076dca38;
+  overflow: visible;
 }
 .landing-pixel-image {
   position: absolute;
@@ -1347,6 +1345,7 @@ button:hover {
   height: 100%;
   object-fit: contain;
   object-position: center;
+  mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
   user-select: none;
   pointer-events: none;
 }
@@ -1416,7 +1415,7 @@ button:hover {
   position: absolute;
   z-index: 4;
   left: 50%;
-  bottom: 9px;
+  bottom: 12px;
   transform: translateX(-50%);
   display: block;
   width: auto;
@@ -1424,20 +1423,17 @@ button:hover {
   padding: 5px 14px;
   border: 0;
   border-radius: 14px;
-  background: #0316337a;
+  background: transparent;
   color: #c1d3f1;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.035em;
   white-space: nowrap;
-  backdrop-filter: blur(4px);
+  text-shadow: 0 2px 8px #000;
 }
 @media (max-aspect-ratio: 4/3) {
-  .home.home-pixel {
-    padding: 12px 14px 42px;
-  }
   .landing-frame {
-    width: 100%;
+    width: 100vw;
   }
   .home.home-pixel .pixel-copyright {
     font-size: 9px;
