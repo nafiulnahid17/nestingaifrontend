@@ -1309,3 +1309,116 @@ button:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Final pixel-matched landing composition */
+.home.home-pixel {
+  position: relative;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+  background: #020d25;
+}
+.landing-pixel-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  pointer-events: none;
+}
+.landing-hotspots {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  pointer-events: none;
+}
+.hotspot {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  color: transparent;
+  pointer-events: auto;
+}
+.hotspot:hover {
+  background: #06bfff12;
+  box-shadow: 0 0 22px #09aaff55;
+}
+.hotspot:focus-visible {
+  outline: 2px solid #61e8ff;
+  outline-offset: 3px;
+}
+.hotspot-home {
+  left: 38.1%;
+  top: 2.1%;
+  width: 7.8%;
+  height: 5.2%;
+}
+.hotspot-how {
+  left: 49.1%;
+  top: 2.1%;
+  width: 10.4%;
+  height: 5.2%;
+}
+.hotspot-features {
+  left: 62.1%;
+  top: 2.1%;
+  width: 8.6%;
+  height: 5.2%;
+}
+.hotspot-pricing {
+  left: 73.6%;
+  top: 2.1%;
+  width: 7.4%;
+  height: 5.2%;
+}
+.hotspot-start {
+  left: 6.1%;
+  top: 66.3%;
+  width: 21.3%;
+  height: 9.4%;
+  border-radius: 38px;
+}
+.hotspot-how-cta {
+  left: 28.4%;
+  top: 66.7%;
+  width: 15.2%;
+  height: 8.5%;
+  border-radius: 35px;
+}
+.home.home-pixel .pixel-copyright {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 9px;
+  transform: translateX(-50%);
+  display: block;
+  width: auto;
+  height: auto;
+  padding: 5px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: #0316337a;
+  color: #c1d3f1;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+@media (max-aspect-ratio: 4/3) {
+  .landing-pixel-image {
+    object-fit: cover;
+    object-position: center;
+  }
+  .home.home-pixel .pixel-copyright {
+    font-size: 9px;
+    bottom: 5px;
+  }
+}

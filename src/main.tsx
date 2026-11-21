@@ -286,50 +286,43 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
     },
   ];
   return (
-    <div className="home">
-      <header className="topbar">
-        <Brand />
-        <nav>
-          <button className="active">Home</button>
-          <button onClick={() => setInfo("how")}>How It Works</button>
-          <button onClick={() => setInfo("features")}>Features</button>
-          <button onClick={() => setInfo("illustrator")}>Illustrator</button>
-          <button onClick={() => setInfo("pricing")}>Pricing</button>
-        </nav>
-      </header>
-      <section className="hero">
-        <div className="hero-copy">
-          <span className="pill">
-            <b>Ai</b>Native Illustrator Automation
-          </span>
-          <h1>
-            Give your Adobe
-            <br />
-            Illustrator <em>AI Support.</em>
-          </h1>
-          <p>
-            Create, vectorize, optimize and prepare production-ready artwork —
-            fully automated for Adobe Illustrator.
-          </p>
-          <div className="hero-actions">
-            <button className="glow-button" onClick={() => go("create")}>
-              <Sparkles />
-              Get Started
-              <ArrowRight />
-            </button>
-            <button className="ghost-button" onClick={() => setInfo("how")}>
-              ◉ &nbsp; How It Works
-            </button>
-          </div>
-        </div>
-        <div className="hero-art">
-          <img
-            src="/robot-hero.jpg"
-            alt="Nesting AI 3D robot using Adobe Illustrator"
-          />
-        </div>
-      </section>
-      <footer>© 2026 Atherious Labs. All rights reserved.</footer>
+    <div className="home home-pixel">
+      <img
+        className="landing-pixel-image"
+        src="/landing-final.webp"
+        alt="Nesting AI native Adobe Illustrator automation"
+      />
+      <nav className="landing-hotspots" aria-label="Landing page navigation">
+        <button className="hotspot hotspot-home" aria-label="Home" />
+        <button
+          className="hotspot hotspot-how"
+          onClick={() => setInfo("how")}
+          aria-label="How It Works"
+        />
+        <button
+          className="hotspot hotspot-features"
+          onClick={() => setInfo("features")}
+          aria-label="Features"
+        />
+        <button
+          className="hotspot hotspot-pricing"
+          onClick={() => setInfo("pricing")}
+          aria-label="Pricing"
+        />
+        <button
+          className="hotspot hotspot-start"
+          onClick={() => go("create")}
+          aria-label="Get Started"
+        />
+        <button
+          className="hotspot hotspot-how-cta"
+          onClick={() => setInfo("how")}
+          aria-label="How It Works"
+        />
+      </nav>
+      <footer className="pixel-copyright">
+        © 2026 Atherious Labs. All rights reserved.
+      </footer>
       {info && (
         <div className="home-modal-wrap" onClick={() => setInfo("")}>
           <section
