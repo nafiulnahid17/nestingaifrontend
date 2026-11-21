@@ -1313,19 +1313,39 @@ button:hover {
 /* Final pixel-matched landing composition */
 .home.home-pixel {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100vw;
   height: 100vh;
   min-height: 0;
+  padding: 16px 28px 48px;
   overflow: hidden;
-  background: #020d25;
+  background: radial-gradient(
+    ellipse at 50% 60%,
+    #082b69 0,
+    #020d25 56%,
+    #010717 100%
+  );
+}
+.landing-frame {
+  position: relative;
+  width: min(100%, calc((100vh - 64px) * 16 / 9), 1536px);
+  aspect-ratio: 16 / 9;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid #154481;
+  border-radius: 14px;
+  box-shadow:
+    0 22px 70px #000b,
+    0 0 32px #076dca38;
 }
 .landing-pixel-image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   user-select: none;
   pointer-events: none;
@@ -1413,9 +1433,11 @@ button:hover {
   backdrop-filter: blur(4px);
 }
 @media (max-aspect-ratio: 4/3) {
-  .landing-pixel-image {
-    object-fit: cover;
-    object-position: center;
+  .home.home-pixel {
+    padding: 12px 14px 42px;
+  }
+  .landing-frame {
+    width: 100%;
   }
   .home.home-pixel .pixel-copyright {
     font-size: 9px;

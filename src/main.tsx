@@ -287,39 +287,41 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
   ];
   return (
     <div className="home home-pixel">
-      <img
-        className="landing-pixel-image"
-        src="/landing-final.webp"
-        alt="Nesting AI native Adobe Illustrator automation"
-      />
-      <nav className="landing-hotspots" aria-label="Landing page navigation">
-        <button className="hotspot hotspot-home" aria-label="Home" />
-        <button
-          className="hotspot hotspot-how"
-          onClick={() => setInfo("how")}
-          aria-label="How It Works"
+      <div className="landing-frame">
+        <img
+          className="landing-pixel-image"
+          src="/landing-final.webp"
+          alt="Nesting AI native Adobe Illustrator automation"
         />
-        <button
-          className="hotspot hotspot-features"
-          onClick={() => setInfo("features")}
-          aria-label="Features"
-        />
-        <button
-          className="hotspot hotspot-pricing"
-          onClick={() => setInfo("pricing")}
-          aria-label="Pricing"
-        />
-        <button
-          className="hotspot hotspot-start"
-          onClick={() => go("create")}
-          aria-label="Get Started"
-        />
-        <button
-          className="hotspot hotspot-how-cta"
-          onClick={() => setInfo("how")}
-          aria-label="How It Works"
-        />
-      </nav>
+        <nav className="landing-hotspots" aria-label="Landing page navigation">
+          <button className="hotspot hotspot-home" aria-label="Home" />
+          <button
+            className="hotspot hotspot-how"
+            onClick={() => setInfo("how")}
+            aria-label="How It Works"
+          />
+          <button
+            className="hotspot hotspot-features"
+            onClick={() => setInfo("features")}
+            aria-label="Features"
+          />
+          <button
+            className="hotspot hotspot-pricing"
+            onClick={() => setInfo("pricing")}
+            aria-label="Pricing"
+          />
+          <button
+            className="hotspot hotspot-start"
+            onClick={() => go("create")}
+            aria-label="Get Started"
+          />
+          <button
+            className="hotspot hotspot-how-cta"
+            onClick={() => setInfo("how")}
+            aria-label="How It Works"
+          />
+        </nav>
+      </div>
       <footer className="pixel-copyright">
         © 2026 Atherious Labs. All rights reserved.
       </footer>
