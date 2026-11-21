@@ -1312,28 +1312,32 @@ button:hover {
 
 /* Final pixel-matched landing composition */
 .home.home-pixel {
+  --landing-gutter: clamp(12px, 3vmin, 36px);
+  --landing-height: 100vh;
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100vw;
-  height: 100vh;
+  gap: 8px;
+  width: 100%;
+  height: var(--landing-height);
   min-height: 0;
-  padding: 0;
+  padding: var(--landing-gutter);
   overflow: hidden;
-  background: #020c24;
+  background:
+    radial-gradient(ellipse at 80% 65%, #08234f 0, transparent 54%),
+    radial-gradient(ellipse at 50% 95%, #071d45 0, transparent 42%),
+    #020c24;
 }
-.home.home-pixel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("/vexora-landing.svg") center / cover no-repeat;
-  opacity: .22;
-  pointer-events: none;
+@supports (height: 100dvh) {
+  .home.home-pixel {
+    --landing-height: 100dvh;
+  }
 }
 .landing-frame {
   position: relative;
-  width: min(100vw, calc(100vh * 16 / 9));
+  width: min(100%, max(0px, calc((var(--landing-height) - var(--landing-gutter) - var(--landing-gutter) - 48px) * 16 / 9)));
   aspect-ratio: 16 / 9;
   flex: none;
   overflow: visible;
@@ -1345,7 +1349,8 @@ button:hover {
   height: 100%;
   object-fit: contain;
   object-position: center;
-  mask-image: linear-gradient(90deg, transparent, black 3%, black 97%, transparent);
+  mask-image: linear-gradient(90deg, transparent, black 2%, black 98%, transparent), linear-gradient(180deg, transparent, black 1%, black 98%, transparent);
+  mask-composite: intersect;
   user-select: none;
   pointer-events: none;
 }
@@ -1412,32 +1417,32 @@ button:hover {
   border-radius: 35px;
 }
 .home.home-pixel .pixel-copyright {
-  position: absolute;
+  position: relative;
   z-index: 4;
-  left: 50%;
-  bottom: 12px;
-  transform: translateX(-50%);
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  column-gap: 3px;
+  flex: 0 0 auto;
   width: auto;
+  max-width: 100%;
+  min-height: 24px;
   height: auto;
-  padding: 5px 14px;
+  padding: 4px 0;
   border: 0;
-  border-radius: 14px;
   background: transparent;
   color: #c1d3f1;
   font-size: 11px;
+  line-height: 1.4;
   font-weight: 600;
   letter-spacing: 0.035em;
-  white-space: nowrap;
+  text-align: center;
   text-shadow: 0 2px 8px #000;
 }
-@media (max-aspect-ratio: 4/3) {
-  .landing-frame {
-    width: 100vw;
-  }
+@media (max-width: 480px) {
   .home.home-pixel .pixel-copyright {
     font-size: 9px;
-    bottom: 5px;
   }
 }
 
