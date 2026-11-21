@@ -39,7 +39,7 @@ const qualityMap: Record<Quality, string> = {
   "Production Moderate": "2K",
   "Production Low": "1K",
 };
-const logo = "/nesting-logo.png";
+const logo = "/vexora-logo.svg";
 const runtimeEnv = (import.meta as any).env || {};
 const configured = {
   production: Boolean(runtimeEnv.VITE_PRODUCTION_ENGINE_URL),
@@ -59,7 +59,8 @@ export function App() {
     () => {
       try {
         const x = sessionStorage.getItem("nesting-test-session");
-        return x ? JSON.parse(x) : null;
+        const saved = x ? JSON.parse(x) : null;
+        return saved?.name === "Nesting Member" ? { ...saved, name: "Vexora Member" } : saved;
       } catch {
         return null;
       }
@@ -76,7 +77,7 @@ export function App() {
     [preview],
   );
   useEffect(() => {
-    document.title = "VEXORA – Artwork, Vector & Illustrator Automation";
+    document.title = "Vexora AI — Native Illustrator Automation";
     history.replaceState(null, "", location.pathname);
   }, []);
   const go = (p: Page) => {
@@ -101,7 +102,7 @@ export function App() {
   };
   const signIn = () => {
     if (login.username.trim() === "admin" && login.password === "12345") {
-      const t = { name: "Nesting Member", tier: "Plus Plan" };
+      const t = { name: "Vexora Member", tier: "Plus Plan" };
       sessionStorage.setItem("nesting-test-session", JSON.stringify(t));
       setSession(t);
       setLogin({ username: "", password: "" });
@@ -121,7 +122,7 @@ export function App() {
         "Production Engine endpoint is configured. Job submission is ready for the connected backend.",
       );
   };
-  const user = session?.name ?? "Nesting Member";
+  const user = session?.name ?? "Vexora Member";
   return (
     <div className="app">
       {page === "home" ? (
@@ -134,7 +135,7 @@ export function App() {
             aria-label={sidebar ? "Close navigation" : "Open navigation"}
             aria-expanded={sidebar}
           >
-            <img src={logo} alt="Nesting AI" />
+            <img src={logo} alt="Vexora AI" />
           </button>
           {sidebar && (
             <>
@@ -191,10 +192,10 @@ export function App() {
 function Brand() {
   return (
     <div className="brand">
-      <img src={logo} alt="Nesting AI" />
+      <img src={logo} alt="Vexora AI" />
       <span>
         <b>
-          Nesting <i>AI</i>
+          Vexora <i>AI</i>
         </b>
         <small>by Atherious Labs</small>
       </span>
@@ -207,7 +208,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
   >("");
   const content = {
     how: {
-      title: "How Nesting AI Works",
+      title: "How Vexora AI Works",
       intro:
         "A focused production workflow that turns uploaded artwork into clean, editable vector output.",
       items: [
@@ -232,7 +233,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
     illustrator: {
       title: "Illustrator Automation",
       intro:
-        "Nesting AI is built to work with Adobe Illustrator through the Native Bridge.",
+        "Vexora AI is built to work with Adobe Illustrator through the Native Bridge.",
       items: [
         "Connect the authorized desktop device to Illustrator Native.",
         "Run vector preparation and production automation in the background.",
@@ -290,8 +291,8 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
       <div className="landing-frame">
         <img
           className="landing-pixel-image"
-          src="/landing-final.webp"
-          alt="VEXORA artwork and vector production platform, formerly Nesting AI"
+          src="/vexora-landing.svg"
+          alt="Vexora AI artwork and vector production platform"
         />
         <nav className="landing-hotspots" aria-label="Landing page navigation">
           <button className="hotspot hotspot-home" aria-label="Home" />
@@ -323,7 +324,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
         </nav>
       </div>
       <footer className="pixel-copyright">
-        <a className="seo-about-link" href="/about/">About VEXORA</a> · © 2026 Atherious Labs. All rights reserved.
+        <a className="seo-about-link" href="/about/">About Vexora AI</a> · © 2026 Atherious Labs. All rights reserved.
       </footer>
       {info && (
         <div className="home-modal-wrap" onClick={() => setInfo("")}>
@@ -341,7 +342,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
             >
               <X />
             </button>
-            <span>NESTING AI</span>
+            <span>Vexora AI</span>
             <h2>{content[info].title}</h2>
             <p>{content[info].intro}</p>
             {info === "pricing" ? (
@@ -491,7 +492,7 @@ function Creator({
       <header className="creator-head">
         <div>
           <span>
-            Nesting AI <small>AI Vector Engine</small>
+            Vexora AI <small>AI Vector Engine</small>
           </span>
           <h1>
             Vectorize <em>Now</em>
@@ -499,7 +500,7 @@ function Creator({
           </h1>
           <p>Turn any design into a clean, editable vector — instantly.</p>
         </div>
-        <img src="/robot-create.jpg" alt="Nesting AI robot" />
+        <img src="/vexora-robot.svg" alt="Vexora AI robot" />
       </header>
       <div className="connections">
         <Connection
@@ -641,7 +642,7 @@ function Workspace({ page, go, session, profile }: any) {
         <section className="account-card">
           <UserRound />
           <div>
-            <b>{session?.name ?? "Nesting Member"}</b>
+            <b>{session?.name ?? "Vexora Member"}</b>
             <small>{session?.tier ?? "Free Plan"}</small>
           </div>
         </section>
@@ -722,7 +723,7 @@ function Auth({ close, login, setLogin, signIn, notice }: any) {
           <X />
         </button>
         <Brand />
-        <h2>Welcome to Nesting AI</h2>
+        <h2>Welcome to Vexora AI</h2>
         <p>Sign in to access your member workspace.</p>
         <label>
           Username

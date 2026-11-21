@@ -1327,7 +1327,7 @@ button:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("/landing-final.webp") center / cover no-repeat;
+  background: url("/vexora-landing.svg") center / cover no-repeat;
   opacity: .22;
   pointer-events: none;
 }
