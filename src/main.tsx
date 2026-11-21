@@ -8,6 +8,7 @@ import {
   Crown,
   FolderOpen,
   History,
+  House,
   Layers3,
   Link2,
   LogIn,
@@ -47,21 +48,7 @@ const configured = {
 };
 
 function App() {
-  const [page, setPage] = useState<Page>(() => {
-      const value = location.hash.replace("#", "") as Page;
-      return [
-        "dashboard",
-        "create",
-        "projects",
-        "templates",
-        "history",
-        "favorites",
-        "billing",
-        "settings",
-      ].includes(value)
-        ? value
-        : "home";
-    }),
+  const [page, setPage] = useState<Page>("home"),
     [sidebar, setSidebar] = useState(false),
     [quality, setQuality] = useState<Quality>("Production High"),
     [file, setFile] = useState<File | null>(null),
@@ -90,6 +77,7 @@ function App() {
   );
   useEffect(() => {
     document.title = "Nesting AI — Native Illustrator Automation";
+    history.replaceState(null, "", location.pathname);
   }, []);
   const go = (p: Page) => {
     setPage(p);
@@ -302,6 +290,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
 }
 function Sidebar({ page, go, user, tier, profile }: any) {
   const links: [[Page, string, any]] | any = [
+    ["home", "Home", House],
     ["dashboard", "Dashboard", Activity],
     ["create", "Create", Sparkles],
     ["projects", "Projects", FolderOpen],
