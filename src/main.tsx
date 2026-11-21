@@ -1,126 +1,31 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, DragEvent, useEffect, useMemo, useState } from 'react';
+import { Activity, ArrowRight, ChevronDown, CircleHelp, Code2, Crown, FolderOpen, History, Layers3, Link2, LogIn, Menu, Monitor, Settings, Sparkles, Upload, UserRound, X } from 'lucide-react';
 import { createRoot } from 'react-dom/client';
-import {
-  Activity, ArrowRight, BarChart3, Check, ChevronRight, CircleHelp, CreditCard,
-  Download, ExternalLink, FileImage, FolderOpen, ImagePlus, Layers3, Menu,
-  MonitorDown, Settings2, Sparkles, Upload, UserRound, Wallet, X,
-} from 'lucide-react';
 import './style.css';
 
-type Page = 'home' | 'create' | 'projects' | 'profile' | 'usage' | 'credits';
-type Quality = 'Max' | 'High' | 'Low';
-type Modal = '' | 'native' | 'plans' | 'templates' | 'help' | 'provider' | 'credits';
-const assistantLogo = '/nesting-assistant.png';
-const providers = ['Google', 'Facebook', 'Microsoft', 'Adobe'];
-const planCards = [
-  { name: 'Plus', price: '$19.99 / month', description: 'For regular artwork creation' },
-  { name: 'Pro', price: '$49.99 / month', description: 'Premium access with native device connection' },
-  { name: 'Pay As You Go', price: '$0.60–$0.80 / generation', description: 'Pay per artwork generation' },
-];
+type Page = 'home' | 'dashboard' | 'create' | 'projects' | 'templates' | 'history' | 'favorites' | 'billing' | 'settings';
+type Quality = 'Production High' | 'Production Moderate' | 'Production Low';
+const qualityMap: Record<Quality, string> = { 'Production High': '4K', 'Production Moderate': '2K', 'Production Low': '1K' };
+const logo = '/nesting-assistant.png';
+const runtimeEnv = (import.meta as any).env || {};
+const configured = { production: Boolean(runtimeEnv.VITE_PRODUCTION_ENGINE_URL), automation: Boolean(runtimeEnv.VITE_AUTOMATION_ENGINE_URL), native: Boolean(runtimeEnv.VITE_NATIVE_BRIDGE_URL) };
 
 function App() {
-  const [page, setPage] = useState<Page>('home');
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [modal, setModal] = useState<Modal>('');
-  const [name, setName] = useState(() => localStorage.getItem('nesting-name') || 'Nesting Member');
-  const [avatar, setAvatar] = useState(() => localStorage.getItem('nesting-avatar') || '');
-  const [plan, setPlan] = useState(() => localStorage.getItem('nesting-plan') || 'Normal Member');
-  const [quality, setQuality] = useState<Quality>('Max');
-  const [file, setFile] = useState<File | null>(null);
-  const [prompt, setPrompt] = useState('');
-  const [providerName, setProviderName] = useState('');
-  const [notice, setNotice] = useState('');
-  const isPremium = plan.toLowerCase().includes('premium') || plan.toLowerCase() === 'pro';
-  const imageUrl = useMemo(() => file ? URL.createObjectURL(file) : '', [file]);
-  useEffect(() => () => { if (imageUrl) URL.revokeObjectURL(imageUrl); }, [imageUrl]);
-  useEffect(() => { document.title = 'Nesting AI — New era of automation'; }, []);
-
-  function navigate(next: Page) {
-    setPage(next); setMenuOpen(false); setModal(''); setNotice('');
-    history.replaceState(null, '', next === 'home' ? location.pathname : `#${next}`);
-  }
-  function chooseFile(candidate?: File) {
-    if (candidate?.type.startsWith('image/')) setFile(candidate);
-  }
-  function changeAvatar(candidate?: File) {
-    if (!candidate?.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = () => { const value = String(reader.result || ''); setAvatar(value); localStorage.setItem('nesting-avatar', value); };
-    reader.readAsDataURL(candidate);
-  }
-  function setPlanChoice(value: string) {
-    // Plans are displayed in the UI; payment verification is not connected, so no plan is activated here.
-    setNotice(`${value} প্ল্যানের পেমেন্ট এখনো সংযুক্ত নয়।`);
-  }
-  const navItems = [
-    { title: 'Create', icon: ImagePlus, action: () => navigate('create') },
-    { title: 'Projects', icon: FolderOpen, action: () => navigate('projects') },
-    { title: 'Templates', icon: Layers3, action: () => { setMenuOpen(false); setModal('templates'); } },
-    { title: 'Profile', icon: UserRound, action: () => navigate('profile') },
-    { title: 'Usage', icon: BarChart3, action: () => navigate('usage') },
-    { title: 'Credits', icon: Wallet, action: () => navigate('credits') },
-  ];
-  const uploadBox = <label className="design-drop" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); chooseFile(e.dataTransfer.files[0]); }}>
-    <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e => chooseFile(e.target.files?.[0])}/>
-    {imageUrl ? <><img className="upload-thumb" src={imageUrl} alt="Uploaded design preview"/><span className="drop-copy"><strong>{file?.name}</strong><small>ডিজাইন বদলাতে ক্লিক করুন</small></span><span className="replace-mark"><Upload size={17}/></span></> : <><span className="upload-icon"><ImagePlus size={20}/></span><span className="drop-copy"><strong>Drop your design</strong><small>ডিজাইন টেনে আনুন, অথবা আপলোড করতে ক্লিক করুন · PNG, JPG, WebP</small></span><span className="upload-cta">আপলোড <Upload size={15}/></span></>}
-  </label>;
-
-  return <div className={`app ${page === 'home' ? 'landing-app' : 'workspace-app'}`}>
-    {page === 'home' ? <>
-      <header className="landing-header"><button className="brand-button" onClick={() => navigate('home')}><img src={assistantLogo} alt=""/><span>Nesting AI</span></button><nav><button onClick={() => navigate('home')}>Home</button><button onClick={() => setModal('help')}>How It Works</button><button onClick={() => setModal('templates')}>Features</button><button onClick={() => setModal('plans')}>Pricing</button></nav><button className="header-profile" onClick={() => navigate('profile')}><Avatar image={avatar} name={name}/><span>{name}</span></button></header>
-      <main className="landing"><section className="hero"><div className="herotext"><span className="eyebrow">AI × Illustrator Automation</span><h1>Give your Adobe<br/>Illustrator <em>AI support.</em></h1><h2>New era of automation.</h2><p>Create high-quality artwork with AI and prepare it for production in Adobe Illustrator.</p><div className="actions"><button className="primary" onClick={() => navigate('create')}>Create Artwork <ArrowRight size={18}/></button><button className="outline" onClick={() => setModal('help')}><CircleHelp size={18}/> How It Works</button></div><div className="features"><span><Sparkles/>AI artwork</span><span><Layers3/>Native vector</span><span><Activity/>Production workflow</span></div></div><div className="heroart"><img src="/hero.png" alt="AI artwork and vector automation"/></div></section><footer>Atherious Labs © 2026</footer></main>
-    </> : <>
-      <button className="menu-trigger" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Menu size={21}/><img src={assistantLogo} alt="Nesting AI"/></button>
-      {menuOpen && <><button className="menu-scrim" aria-label="Close menu" onClick={() => setMenuOpen(false)}/><aside className="sidebar"><div className="sidebar-top"><div className="sidebar-brand"><img src={assistantLogo} alt=""/><span>Nesting AI</span><button className="icon-button" aria-label="Close menu" onClick={() => setMenuOpen(false)}><X size={18}/></button></div><button className="sidebar-profile" onClick={() => navigate('profile')}><Avatar image={avatar} name={name}/><span><strong>{name}</strong><small>{plan}</small></span><ChevronRight size={16}/></button><div className="sidebar-links">{navItems.map(item => <button key={item.title} className={page === item.title.toLowerCase() ? 'selected' : ''} onClick={item.action}><item.icon size={18}/>{item.title}</button>)}{isPremium && <button onClick={() => { setMenuOpen(false); setModal('native'); }}><MonitorDown size={18}/>Connect Device to Native</button>}</div></div><div className="sidebar-bottom"><button onClick={() => { setMenuOpen(false); setModal('help'); }}><CircleHelp size={18}/>Help &amp; Support</button><span>© 2026 Atherious Labs</span></div></aside></>}
-      <main className={`workspace-content page-${page}`}>
-        {page === 'create' && <>
-          <div className="create-title-card"><span className="title-spark"><Sparkles size={17}/></span><div><h1>Create Artwork</h1><p>আপনার ডিজাইন আপলোড করুন, তৈরি শুরু করুন</p></div></div>
-          <section className="engine-strip" aria-label="ইঞ্জিনের অবস্থা">
-            <EngineCard icon={<Sparkles/>} label="Production Engine" detail="AI artwork engine" status="প্রস্তুত নয়" kind="offline"/>
-            <EngineCard icon={<Settings2/>} label="Automation Engine" detail="কাজের অটোমেশন" status="প্রস্তুত নয়" kind="offline"/>
-            <EngineCard icon={<MonitorDown/>} label="Illustrator" detail="ডিভাইস সংযোগ" status="সংযুক্ত নয়" kind="offline"/>
-            <EngineCard icon={<UserRound/>} label="সদস্যতা" detail={plan} status={isPremium ? 'Premium' : 'সাধারণ'} kind={isPremium ? 'online' : 'neutral'}/>
-          </section>
-          <div className="workbench">
-            <div className="input-column">{uploadBox}<div className="quality-section"><div className="section-label"><span>আর্টওয়ার্কের ধরন</span><small>একটি মান বেছে নিন</small></div><div className="quality-options">{(['Max','High','Low'] as Quality[]).map((item, i) => <button key={item} className={quality === item ? 'quality-option active' : 'quality-option'} onClick={() => setQuality(item)}><span className="quality-name">{item}</span><span className="quality-resolution">{['4K','2K','1K'][i]}</span>{quality === item && <Check size={15}/>}</button>)}</div><p className="quality-note">Quality স্বয়ংক্রিয়ভাবে নির্বাচিত মোড অনুযায়ী সেট হবে।</p></div><button className="primary generate-button" disabled={!file} onClick={() => setNotice('AI artwork engine এখনো সংযুক্ত নয়।')}><Sparkles size={17}/>Artwork তৈরি করুন<ArrowRight size={17}/></button></div>
-            <div className="preview-column"><div className="preview-heading"><span>প্রিভিউ</span><small>4:5</small></div><div className="preview-frame">{imageUrl ? <img src={imageUrl} alt="Design preview"/> : <div className="preview-empty"><FileImage size={25}/><span>আপনার ডিজাইন এখানে দেখা যাবে</span></div>}</div></div>
-          </div>
-          {notice && <p className="notice" role="status">{notice}</p>}
-        </>}
-        {page === 'profile' && <>
-          <div className="page-heading"><div><span className="eyebrow-small">ACCOUNT</span><h1>প্রোফাইল</h1><p>আপনার পরিচিতি, সদস্যতা ও সংযুক্ত অ্যাকাউন্ট পরিচালনা করুন।</p></div></div>
-          <section className="profile-card"><div className="profile-cover"><div className="profile-identity"><label className="avatar-upload"><Avatar image={avatar} name={name}/><span>ছবি বদলান</span><input type="file" accept="image/*" onChange={e => changeAvatar(e.target.files?.[0])}/></label><div><h2>{name}</h2><p>{plan}</p></div></div><button className="outline small-button" onClick={() => setModal('plans')}>প্ল্যান আপগ্রেড করুন <ArrowRight size={15}/></button></div><label className="name-field">প্রদর্শিত নাম<input value={name} onChange={e => { setName(e.target.value); localStorage.setItem('nesting-name', e.target.value); }} placeholder="আপনার নাম"/></label></section>
-          <section className="profile-section"><div className="section-heading"><div><h2>আপনার সদস্যতা</h2><p>বর্তমান প্ল্যান এবং আপগ্রেডের বিকল্প</p></div><span className="member-pill">{plan}</span></div><div className="plan-grid">{planCards.map((p, i) => <article className={`plan-card ${i === 1 ? 'premium-card' : ''}`} key={p.name}><div className="plan-card-top"><h3>{p.name}</h3>{i === 1 && <span>PREMIUM</span>}</div><strong className="plan-price">{p.price}</strong><p>{p.description}</p><button className={i === 1 ? 'primary' : 'outline'} onClick={() => setPlanChoice(p.name)}>Upgrade to {p.name}</button></article>)}</div></section>
-          <section className="profile-section setup-section"><div className="section-heading"><div><h2>প্রোফাইল সেটআপ</h2><p>অন্য অ্যাকাউন্ট দিয়ে Nesting AI-তে সাইন ইন সেটআপ করুন</p></div></div><div className="provider-grid">{providers.map(p => <button key={p} onClick={() => { setProviderName(p); setModal('provider'); }}><span className={`provider-mark provider-${p.toLowerCase()}`}>{p === 'Google' ? 'G' : p === 'Facebook' ? 'f' : p === 'Microsoft' ? '▦' : 'A'}</span><span>{p} অ্যাকাউন্ট</span><ChevronRight size={16}/></button>)}</div></section>
-          {notice && <p className="notice" role="status">{notice}</p>}
-        </>}
-        {page === 'projects' && <SimplePage title="Projects" eyebrow="WORKSPACE" text="আপনার তৈরি করা ডিজাইন ও প্রজেক্টগুলো এখানে থাকবে।" icon={<FolderOpen/>}/>}
-        {page === 'usage' && <SimplePage title="Usage" eyebrow="ACTIVITY" text="আপনার জেনারেশন ও ক্রেডিট ব্যবহারের সারাংশ এখানে দেখানো হবে।" icon={<BarChart3/>}/>}
-        {page === 'credits' && <SimplePage title="Credits" eyebrow="BILLING" text="ক্রেডিট ও পেমেন্টের তথ্য এখানে পরিচালনা করুন।" icon={<CreditCard/>} action={() => setModal('credits')}/>}
-      </main>
-      <button className="assistant-float" aria-label="Nesting AI সহায়তা" onClick={() => setModal('help')}><img src={assistantLogo} alt="Nesting AI Assistant"/><span className="assistant-tooltip">AI সহায়তা</span></button>
-    </>}
-
-    {modal && <div className="modal-backdrop" onClick={() => setModal('')}><section className="app-modal" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}><button className="modal-close icon-button" aria-label="বন্ধ করুন" onClick={() => setModal('')}><X size={19}/></button>
-      {modal === 'native' && <><span className="modal-eyebrow">NESTING AI · DEVICE</span><h2>ডিভাইস নেটিভের সঙ্গে সংযুক্ত করুন</h2><p className="modal-intro">Illustrator অটোমেশন ব্যবহার করতে আপনার কম্পিউটারে Adobe Illustrator ও Nesting AI Native Bridge লাগবে।</p><div className="native-version"><div className="native-icon"><MonitorDown/></div><div><small>সাজেস্টেড অ্যাপ</small><strong>Adobe Illustrator · Desktop</strong><span>সর্বশেষ ডেস্কটপ সংস্করণ · Windows</span></div><a href="https://www.adobe.com/products/illustrator.html" target="_blank" rel="noreferrer" className="outline native-download">ডাউনলোড <ExternalLink size={15}/></a></div><div className="bridge-box"><div><strong>Nesting AI Native Bridge</strong><p>আমাদের BAT ইনস্টলার লিংক যোগ হলে এখান থেকে ডাউনলোড করা যাবে।</p></div><button className="outline" disabled><Download size={15}/> শীঘ্রই আসছে</button></div><p className="modal-footnote">Illustrator সংযোগ শুধুমাত্র Premium প্ল্যানে সক্রিয় হবে।</p></>}
-      {modal === 'plans' && <><span className="modal-eyebrow">MEMBERSHIP</span><h2>আপনার জন্য একটি প্ল্যান বেছে নিন</h2><p className="modal-intro">Premium সদস্যতায় নেটিভ Illustrator সংযোগের সুবিধা থাকবে।</p><div className="modal-plan-grid">{planCards.map((p, i) => <article className="plan-card" key={p.name}><h3>{p.name}</h3><strong className="plan-price">{p.price}</strong><p>{p.description}</p><button className={i === 1 ? 'primary' : 'outline'} onClick={() => setNotice(`${p.name} প্ল্যানের পেমেন্ট এখনো সংযুক্ত নয়।`)}>Upgrade to {p.name}</button></article>)}</div>{notice && <p className="notice">{notice}</p>}</>}
-      {modal === 'provider' && <><span className="modal-eyebrow">PROFILE SETUP</span><h2>{providerName} অ্যাকাউন্ট</h2><p className="modal-intro">{providerName} দিয়ে অ্যাকাউন্ট সংযোগের ব্যবস্থা প্রস্তুত করা হয়েছে। OAuth সংযোগ চালু হলে এখান থেকে সেটআপ সম্পন্ন হবে।</p><button className="primary" onClick={() => setModal('')}>বুঝেছি</button></>}
-      {modal === 'templates' && <><span className="modal-eyebrow">WORKSPACE</span><h2>Templates</h2><p className="modal-intro">প্রস্তুত ডিজাইন টেমপ্লেট শীঘ্রই যোগ করা হবে।</p></>}
-      {modal === 'help' && <><span className="modal-eyebrow">NESTING AI ASSISTANT</span><h2>কীভাবে সাহায্য করতে পারি?</h2><p className="modal-intro">আপনার ডিজাইন আপলোড করুন, Max, High বা Low মোড বেছে নিন, তারপর artwork তৈরির ধাপ শুরু করুন। Illustrator automation সংযোগটি Premium প্ল্যানে পাওয়া যাবে।</p><button className="primary" onClick={() => { setModal(''); navigate('create'); }}>Artwork তৈরি করুন <ArrowRight size={16}/></button></>}
-      {modal === 'credits' && <><span className="modal-eyebrow">CREDITS</span><h2>ক্রেডিট যোগ করুন</h2><p className="modal-intro">ক্রেডিট কেনার ব্যবস্থা এখনো সংযুক্ত নয়।</p></>}
-      <button className="modal-dismiss" onClick={() => setModal('')}>বন্ধ করুন</button>
-    </section></div>}
-  </div>;
+ const [page,setPage]=useState<Page>('home'),[sidebar,setSidebar]=useState(false),[quality,setQuality]=useState<Quality>('Production High'),[file,setFile]=useState<File|null>(null),[authOpen,setAuthOpen]=useState(false),[login,setLogin]=useState({username:'',password:''}),[notice,setNotice]=useState('');
+ const [session,setSession]=useState<{name:string;tier:string}|null>(()=>{try{const x=sessionStorage.getItem('nesting-test-session');return x?JSON.parse(x):null}catch{return null}});
+ const preview=useMemo(()=>file?URL.createObjectURL(file):'',[file]); useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview)},[preview]); useEffect(()=>{document.title='Nesting AI — Native Illustrator Automation'},[]);
+ const go=(p:Page)=>{setPage(p);setSidebar(false);setNotice('');window.scrollTo({top:0,behavior:'smooth'})};
+ const receive=(candidate?:File)=>{if(!candidate)return;if(!['image/png','image/jpeg','image/webp'].includes(candidate.type)){setNotice('Use a PNG, JPG, JPEG, or WebP design file.');return}if(candidate.size>50*1024*1024){setNotice('The selected file is larger than 50 MB.');return}setFile(candidate);setNotice('')};
+ const signIn=()=>{if(!runtimeEnv.DEV){setNotice('Test authentication is disabled in this deployment. Connect the authentication provider to sign in.');return}if(login.username==='admin'&&login.password==='12345'){const t={name:'Testing Member',tier:'Plus Testing'};sessionStorage.setItem('nesting-test-session',JSON.stringify(t));setSession(t);setAuthOpen(false);go('dashboard')}else setNotice('Incorrect test credentials.')};
+ const profile=()=>session?go('dashboard'):setAuthOpen(true); const vectorize=()=>{if(!file)setNotice('Upload a design before vectorizing.');else if(!configured.production)setNotice('Production Engine requires configuration before jobs can be submitted. Your design stays in this browser.');else setNotice('Production Engine endpoint is configured. Job submission is ready for the connected backend.')}; const user=session?.name??'Nesting Member';
+ return <div className="app">{page==='home'?<Home go={go} profile={profile}/>:<><button className="mobile-menu" onClick={()=>setSidebar(true)}><Menu/></button><Sidebar page={page} go={go} user={user} tier={session?.tier??'Free Plan'} profile={profile}/>{sidebar&&<><button className="scrim" onClick={()=>setSidebar(false)}/><aside className="drawer"><button className="drawer-close" onClick={()=>setSidebar(false)}><X/></button><Sidebar page={page} go={go} user={user} tier={session?.tier??'Free Plan'} profile={profile}/></aside></>}<main className="workspace">{page==='create'?<Creator quality={quality} setQuality={setQuality} file={file} preview={preview} receive={receive} vectorize={vectorize} notice={notice}/>:<Workspace page={page} go={go} session={session} profile={profile}/>}</main></>}{authOpen&&<Auth close={()=>setAuthOpen(false)} login={login} setLogin={setLogin} signIn={signIn} notice={notice}/>}</div>
 }
-
-function Avatar({ image, name }: { image: string; name: string }) {
-  return image ? <img className="avatar-image" src={image} alt={`${name} profile`}/> : <span className="avatar-fallback"><UserRound size={18}/></span>;
-}
-function EngineCard({ icon, label, detail, status, kind }: { icon: React.ReactNode; label: string; detail: string; status: string; kind: string }) {
-  return <article className="engine-card"><span className="engine-symbol">{icon}</span><span className="engine-copy"><strong>{label}</strong><small>{detail}</small></span><span className={`engine-state ${kind}`}><i/>{status}</span></article>;
-}
-function SimplePage({ title, eyebrow, text, icon, action }: { title: string; eyebrow: string; text: string; icon: React.ReactNode; action?: () => void }) {
-  return <section className="simple-page"><span className="eyebrow-small">{eyebrow}</span><div className="simple-icon">{icon}</div><h1>{title}</h1><p>{text}</p>{action && <button className="primary" onClick={action}>ক্রেডিট যোগ করুন <ArrowRight size={16}/></button>}</section>;
-}
-
+function Brand(){return <div className="brand"><img src={logo} alt="Nesting AI"/><span><b>Nesting <i>AI</i></b><small>by Atherious Labs</small></span></div>}
+function Home({go,profile}:{go:(p:Page)=>void;profile:()=>void}){return <div className="home"><header className="topbar"><Brand/><nav><button className="active">Home</button><button onClick={()=>document.getElementById('how')?.scrollIntoView({behavior:'smooth'})}>How It Works</button><button onClick={()=>document.getElementById('features')?.scrollIntoView({behavior:'smooth'})}>Features</button><button onClick={()=>go('billing')}>Pricing</button></nav><button className="profile-button" onClick={profile}><UserRound/>Profile</button></header><section className="hero"><div className="hero-copy"><span className="pill"><b>Ai</b>Native Illustrator Automation</span><h1>Give your Adobe<br/>Illustrator <em>AI Support.</em></h1><p>Create, vectorize, optimize and prepare production-ready artwork — fully automated for Adobe Illustrator.</p><div className="hero-actions"><button className="glow-button" onClick={()=>go('create')}><Sparkles/>Get Started<ArrowRight/></button><button className="ghost-button" onClick={()=>document.getElementById('how')?.scrollIntoView({behavior:'smooth'})}>◉ &nbsp; How It Works</button></div></div><div className="hero-art"><img src="/hero.png" alt="Nesting AI native Illustrator automation"/></div></section><section id="how" className="home-section"><span>HOW IT WORKS</span><h2>One clean production workflow.</h2><p>Upload a design, choose an output quality, then vectorize when the connected production engine is ready.</p></section><section id="features" className="home-section compact"><span>FEATURES</span><h2>Artwork fidelity comes first.</h2></section><footer>© 2026 Atherious Labs. All rights reserved.</footer></div>}
+function Sidebar({page,go,user,tier,profile}:any){const links:[[Page,string,any]]|any=[['dashboard','Dashboard',Activity],['create','Create',Sparkles],['projects','Projects',FolderOpen],['templates','Templates',Layers3],['history','Generation History',History],['favorites','Favorites',Crown]];return <div className="sidebar-inner"><Brand/><button className="member" onClick={profile}><UserRound/><span><b>{user}</b><small>{tier}</small></span><ChevronDown/></button><div className="side-links">{links.map(([k,n,I]:any)=><button key={k} className={page===k?'selected':''} onClick={()=>go(k)}><I/>{n}</button>)}</div><div className="side-links divided"><button onClick={()=>go('create')}><Link2/>Connect to Native<i className={configured.native?'on':''}/></button><button><Layers3/>Batch Processing</button><button><Code2/>API &amp; Integrations</button></div><div className="side-links divided"><button onClick={()=>go('billing')}><Monitor/>Plan &amp; Billing</button></div><div className="upgrade"><Crown/><b>Upgrade Your Plan</b><p>Unlock higher quality, faster processing and advanced features.</p><button onClick={()=>go('billing')}>Upgrade to Pro<ArrowRight/></button></div><div className="side-links bottom"><button onClick={()=>go('settings')}><Settings/>Settings</button><button><CircleHelp/>Help &amp; Support</button></div><small className="copyright">© 2026 Atherious Labs. All rights reserved.</small></div>}
+function Creator({quality,setQuality,file,preview,receive,vectorize,notice}:any){const drop=(e:DragEvent<HTMLLabelElement>)=>{e.preventDefault();receive(e.dataTransfer.files[0])};return <section className="creator"><header className="creator-head"><div><span>Nesting AI</span><h1>Vectorize <em>Now</em><b>ϟ</b></h1><p>Turn any design into a clean, editable vector — instantly.</p></div><img src="/hero.png" alt=""/></header><div className="connections"><Connection label="Production Engine" value="AI artwork engine" online={configured.production}/><Connection label="Automation Engine" value="Workflow automation" online={configured.automation}/><Connection label="Illustrator Native" value="Desktop connection" online={configured.native}/></div><label className="dropzone" onDragOver={e=>e.preventDefault()} onDrop={drop}><input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e:ChangeEvent<HTMLInputElement>)=>receive(e.target.files?.[0])}/>{preview?<><img src={preview} alt="Uploaded design preview"/><span><b>{file.name}</b><small>Click or drop another file to replace it</small></span></>:<><Upload/><b>Drop Your Design Here</b><small>Upload PNG, JPG, JPEG, WebP (up to 50 MB)</small></>}</label><div className="quality-row"><label className="quality-label">Output Quality<select value={quality} onChange={e=>setQuality(e.target.value as Quality)}>{Object.keys(qualityMap).map(x=><option key={x}>{x}</option>)}</select></label><div className="resolutions">{['4K','2K','1K'].map(x=><span key={x} className={qualityMap[quality as Quality]===x?'current':''}><Monitor/>{x}</span>)}</div><button className="vectorize" onClick={vectorize}><Sparkles/>Vectorize Now<ArrowRight/></button></div>{notice&&<p className="notice">{notice}</p>}</section>}
+function Connection({label,value,online}:any){return <div className="connection"><Layers3/><span><b>{label}</b><small>{value}</small></span><i className={online?'on':''}/><em>{online?'Connected':'Configuration required'}</em></div>}
+function Workspace({page,go,session,profile}:any){if(page!=='dashboard')return <section className="empty"><div><Layers3/></div><span>{page.toUpperCase()}</span><h1>{page==='billing'?'Plan & Billing':page==='settings'?'Settings':page==='favorites'?'Favorites':page==='history'?'Generation History':page[0].toUpperCase()+page.slice(1)}</h1><p>This section has no connected data yet. Connect the required integration to show real information.</p>{page==='billing'&&<button className="glow-button">Payment Gateway Required</button>}</section>;return <section className="dashboard"><header className="dashbar"><input placeholder="Search projects, designs, or templates…"/><button onClick={profile}><UserRound/>{session?.name??'Guest'}</button></header><h1>Welcome Back, <em>{session?.name?.split(' ')[0]??'Member'}</em> <span>👋</span></h1><p>Manage your designs, track usage, and create high-quality vector outputs.</p><div className="dashboard-grid"><section className="account-card"><UserRound/><div><b>{session?.name??'Nesting Member'}</b><small>{session?.tier??'Free Plan'}</small></div></section><Metric title="Credits Balance" value="—" note="Billing integration required"/><Metric title="Plan" value={session?.tier??'Free Plan'}/><Metric title="Usage (This Month)" value="—" note="No analytics connected"/><section className="data-empty large"><Activity/><b>Your Activity</b><p>Activity will appear here once generation analytics are connected.</p></section><section className="actions-card"><b>Quick Actions</b><button onClick={()=>go('create')}><Sparkles/>Create Vector</button><button onClick={()=>go('projects')}><FolderOpen/>New Project</button><button onClick={()=>go('templates')}><Layers3/>Use Template</button><button onClick={()=>go('create')}><Link2/>Connect to Native</button></section><section className="data-empty recent"><FolderOpen/><b>Recent Projects</b><p>No projects yet. Create your first vector workflow.</p></section><section className="upgrade-wide"><Crown/><h2>Upgrade to <em>Pro</em></h2><p>Get more credits, higher quality outputs, faster processing and exclusive features.</p><button onClick={()=>go('billing')}>Upgrade Plan<ArrowRight/></button></section></div></section>}
+function Metric({title,value,note}:any){return <section className="metric"><small>{title}</small><b>{value}</b>{note&&<span>{note}</span>}</section>}
+function Auth({close,login,setLogin,signIn,notice}:any){return <div className="modal-wrap"><section className="auth-modal"><button className="close" onClick={close}><X/></button><Brand/><h2>Welcome to Nesting AI</h2><p>Sign in to access your member workspace.</p><label>Username<input value={login.username} onChange={e=>setLogin({...login,username:e.target.value})} autoComplete="username"/></label><label>Password<input type="password" value={login.password} onChange={e=>setLogin({...login,password:e.target.value})} autoComplete="current-password"/></label><button className="glow-button" onClick={signIn}><LogIn/>Login</button><button className="signup">Sign Up requires authentication provider configuration</button>{notice&&<p className="notice">{notice}</p>}</section></div>}
 createRoot(document.getElementById('root')!).render(<App/>);
