@@ -42,7 +42,6 @@ const qualityMap: Record<Quality, string> = {
 const logo = "/vexora-logo.svg";
 const runtimeEnv = (import.meta as any).env || {};
 const configured = {
-  production: Boolean(runtimeEnv.VITE_PRODUCTION_ENGINE_URL),
   automation: Boolean(runtimeEnv.VITE_AUTOMATION_ENGINE_URL),
   native: Boolean(runtimeEnv.VITE_NATIVE_BRIDGE_URL),
 };
@@ -54,7 +53,18 @@ export function App() {
     [file, setFile] = useState<File | null>(null),
     [authOpen, setAuthOpen] = useState(false),
     [login, setLogin] = useState({ username: "", password: "" }),
-    [notice, setNotice] = useState("");
+    [notice, setNotice] = useState(""),
+    [productionReady, setProductionReady] = useState(false),
+    [testAccess, setTestAccess] = useState(""),
+    [working, setWorking] = useState(false),
+    [jobStage, setJobStage] = useState(""),
+    [assets, setAssets] = useState<{ side: string; url: string }[]>([]);
+  useEffect(() => {
+    fetch('/api/artwork/readiness', { cache: 'no-store' })
+      .then((r) => r.json()).then((s) => setProductionReady(s.ready === true))
+      .catch(() => setProductionReady(false));
+  }, []);
+  useEffect(() => () => assets.forEach((asset) => URL.revokeObjectURL(asset.url)), [assets]);
   const [session, setSession] = useState<{ name: string; tier: string } | null>(
     () => {
       try {
@@ -93,8 +103,8 @@ export function App() {
       setNotice("Use a PNG, JPG, JPEG, or WebP design file.");
       return;
     }
-    if (candidate.size > 50 * 1024 * 1024) {
-      setNotice("The selected file is larger than 50 MB.");
+    if (candidate.size > 10 * 1024 * 1024) {
+      setNotice("For limited testing, choose an image under 10 MB.");
       return;
     }
     setFile(candidate);
@@ -111,16 +121,37 @@ export function App() {
     } else setNotice("Incorrect username or password.");
   };
   const profile = () => (session ? go("dashboard") : setAuthOpen(true));
-  const vectorize = () => {
-    if (!file) setNotice("Upload a design before vectorizing.");
-    else if (!configured.production)
-      setNotice(
-        "Production Engine requires configuration before jobs can be submitted. Your design stays in this browser.",
-      );
-    else
-      setNotice(
-        "Production Engine endpoint is configured. Job submission is ready for the connected backend.",
-      );
+  const vectorize = async () => {
+    if (!file) return setNotice("Upload a design before testing artwork production.");
+    if (!productionReady) return setNotice("Artwork Engine is not ready. Configure the server connection and Kie key first.");
+    if (!testAccess) return setNotice("Enter the private test access code first.");
+    if (working) return;
+    setWorking(true);setAssets([]);setJobStage("Uploading reference");setNotice("");
+    try {
+      const encoded = await new Promise<string>((resolve, reject) => {const reader = new FileReader();reader.onload = () => resolve(String(reader.result).split(',')[1]);reader.onerror = () => reject(new Error('File read failed'));reader.readAsDataURL(file);});
+      const headers = { 'X-Test-Access': testAccess };
+      const res = await fetch('/api/artwork/jobs', {method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({quality_mode:({"Production High":"professional","Production Moderate":"high","Production Low":"low"} as Record<Quality,string>)[quality],reference_image_b64:encoded})});
+      const created = await res.json();if (!res.ok) throw new Error(created.detail || created.error || 'Job creation failed');
+      setJobStage('Artwork reconstruction');
+      const deadline=Date.now()+6*60*1000;
+      while(Date.now()<deadline){
+        const statusRes=await fetch(`/api/artwork/jobs/${created.job_id}`,{headers,cache:'no-store'});
+        const job=await statusRes.json();if(!statusRes.ok)throw new Error(job.detail||job.error||'Could not read job status');
+        setJobStage(String(job.stage||job.status).replaceAll('_',' '));
+        if(job.status==='failed')throw new Error(job.error||'Artwork generation failed');
+        if(job.status==='completed'){
+          const downloaded=await Promise.all(['front','back'].map(async side=>{
+            const response=await fetch(`/api/artwork/jobs/${created.job_id}/masters/${side}`,{headers});
+            if(!response.ok)throw new Error(`Could not retrieve ${side} master`);
+            return {side,url:URL.createObjectURL(await response.blob())};
+          }));
+          setAssets(downloaded);setNotice('Front and Back master artworks are ready. Illustrator vectorization is not connected yet.');return;
+        }
+        await new Promise(resolve=>setTimeout(resolve,3000));
+      }
+      setNotice(`Job ${created.job_id} is still processing. Check its status before retrying.`);
+    } catch(e) {setNotice(e instanceof Error?e.message:'Artwork test failed');}
+    finally{setWorking(false);}
   };
   const user = session?.name ?? "Vexora Member";
   return (
@@ -165,6 +196,12 @@ export function App() {
                 receive={receive}
                 vectorize={vectorize}
                 notice={notice}
+                productionReady={productionReady}
+                testAccess={testAccess}
+                setTestAccess={setTestAccess}
+                working={working}
+                jobStage={jobStage}
+                assets={assets}
               />
             ) : (
               <Workspace
@@ -482,6 +519,12 @@ function Creator({
   receive,
   vectorize,
   notice,
+  productionReady,
+  testAccess,
+  setTestAccess,
+  working,
+  jobStage,
+  assets,
 }: any) {
   const drop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
@@ -506,7 +549,7 @@ function Creator({
         <Connection
           label="Production Engine"
           value="AI artwork engine"
-          online={configured.production}
+          online={productionReady}
         />
         <Connection
           label="Automation Engine"
@@ -543,7 +586,7 @@ function Creator({
           <>
             <Upload />
             <b>Drop Your Design Here</b>
-            <small>Upload PNG, JPG, JPEG, WebP (up to 50 MB)</small>
+            <small>Upload PNG, JPG, JPEG, WebP (up to 10 MB for testing)</small>
           </>
         )}
       </label>
@@ -570,11 +613,17 @@ function Creator({
             </span>
           ))}
         </div>
-        <button className="vectorize" onClick={vectorize}>
+        <button className="vectorize" onClick={vectorize} disabled={working}>
           <Sparkles />
-          Vectorize Now
+          {working ? 'Creating artwork…' : 'Test Artwork'}
           <ArrowRight />
         </button>
+      </div>
+      <div className="artwork-test">
+        <label>Private test access code <input type="password" autoComplete="off" value={testAccess} onChange={(e) => setTestAccess(e.target.value)} placeholder="Required for limited tests" /></label>
+        <small>This test generates separate Front and Back artwork. It does not create vector exports. The access code stays in this browser session.</small>
+        {jobStage && <p role="status">Current stage: {jobStage}</p>}
+        {assets.length > 0 && <div className="artwork-results">{assets.map((asset:{side:string;url:string}) => <div key={asset.side}><img src={asset.url} alt={`${asset.side} master artwork`} /><a href={asset.url} download={`nesting-${asset.side}-master.png`}>Download {asset.side} master</a></div>)}</div>}
       </div>
       {notice && <p className="notice">{notice}</p>}
     </section>

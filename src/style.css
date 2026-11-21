@@ -1448,3 +1448,14 @@ button:hover {
 
 .seo-about-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .seo-about-link:focus-visible { outline: 2px solid #a9b8ff; }
+
+.artwork-test { display:grid; gap:10px; margin:18px 0 0; color:#cbd7ed; }
+.artwork-test label { display:flex; flex-wrap:wrap; align-items:center; gap:12px; font-size:13px; }
+.artwork-test input { min-width:220px; padding:10px 12px; color:#fff; background:#0c1b36; border:1px solid #6272a6; border-radius:8px; }
+.artwork-test small { color:#a8b7d6; line-height:1.5; }
+.artwork-test p { margin:0; text-transform:capitalize; }
+.artwork-results { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.artwork-results div { display:grid; gap:8px; }
+.artwork-results img { width:100%; max-height:360px; object-fit:contain; background:#0b1831; border-radius:10px; }
+.artwork-results a { color:#8edaff; text-transform:capitalize; }
+@media(max-width:640px){.artwork-results{grid-template-columns:1fr}}

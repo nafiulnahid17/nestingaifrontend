@@ -1,0 +1,3 @@
+ARTWORK_ENGINE_URL=http://127.0.0.1:8000
+ENGINE_AUTH_TOKEN=replace-with-a-private-engine-token
+TEST_ACCESS_TOKEN=replace-with-a-different-private-test-token
