@@ -1440,3 +1440,6 @@ button:hover {
     bottom: 5px;
   }
 }
+
+.seo-about-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.seo-about-link:focus-visible { outline: 2px solid #a9b8ff; }

@@ -47,7 +47,7 @@ const configured = {
   native: Boolean(runtimeEnv.VITE_NATIVE_BRIDGE_URL),
 };
 
-function App() {
+export function App() {
   const [page, setPage] = useState<Page>("home"),
     [sidebar, setSidebar] = useState(false),
     [quality, setQuality] = useState<Quality>("Production High"),
@@ -76,7 +76,7 @@ function App() {
     [preview],
   );
   useEffect(() => {
-    document.title = "Nesting AI — Native Illustrator Automation";
+    document.title = "VEXORA – Artwork, Vector & Illustrator Automation";
     history.replaceState(null, "", location.pathname);
   }, []);
   const go = (p: Page) => {
@@ -291,7 +291,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
         <img
           className="landing-pixel-image"
           src="/landing-final.webp"
-          alt="Nesting AI native Adobe Illustrator automation"
+          alt="VEXORA artwork and vector production platform, formerly Nesting AI"
         />
         <nav className="landing-hotspots" aria-label="Landing page navigation">
           <button className="hotspot hotspot-home" aria-label="Home" />
@@ -323,7 +323,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
         </nav>
       </div>
       <footer className="pixel-copyright">
-        © 2026 Atherious Labs. All rights reserved.
+        <a className="seo-about-link" href="/about/">About VEXORA</a> · © 2026 Atherious Labs. All rights reserved.
       </footer>
       {info && (
         <div className="home-modal-wrap" onClick={() => setInfo("")}>
@@ -753,4 +753,6 @@ function Auth({ close, login, setLogin, signIn, notice }: any) {
     </div>
   );
 }
-createRoot(document.getElementById("root")!).render(<App />);
+if (typeof document !== "undefined") {
+  createRoot(document.getElementById("root")!).render(<App />);
+}
