@@ -202,29 +202,89 @@ function Brand() {
   );
 }
 function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
-  const [info, setInfo] = useState<"how" | "features" | "illustrator" | "pricing" | "">("");
+  const [info, setInfo] = useState<
+    "how" | "features" | "illustrator" | "pricing" | ""
+  >("");
   const content = {
     how: {
       title: "How Nesting AI Works",
-      intro: "A focused production workflow that turns uploaded artwork into clean, editable vector output.",
-      items: ["Upload a PNG, JPG, JPEG or WebP design up to 50 MB.", "Select Production High (4K), Production Moderate (2K), or Production Low (1K).", "The Production Engine prepares the artwork while the Automation Engine manages the workflow.", "Illustrator Native completes production tasks and returns export-ready files when connected."],
+      intro:
+        "A focused production workflow that turns uploaded artwork into clean, editable vector output.",
+      items: [
+        "Upload a PNG, JPG, JPEG or WebP design up to 50 MB.",
+        "Select Production High (4K), Production Moderate (2K), or Production Low (1K).",
+        "The Production Engine prepares the artwork while the Automation Engine manages the workflow.",
+        "Illustrator Native completes production tasks and returns export-ready files when connected.",
+      ],
     },
     features: {
       title: "Production Features",
-      intro: "Every feature is designed for artwork fidelity, editability, and real production use.",
-      items: ["Drag-and-drop upload with an actual browser preview.", "Quality presets automatically mapped to 4K, 2K, and 1K.", "Real connection states for Production Engine, Automation Engine, and Illustrator Native.", "Project, template, history, favorites, batch-processing, and API integration workspaces.", "No fabricated projects, usage figures, credits, or completion states."],
+      intro:
+        "Every feature is designed for artwork fidelity, editability, and real production use.",
+      items: [
+        "Drag-and-drop upload with an actual browser preview.",
+        "Quality presets automatically mapped to 4K, 2K, and 1K.",
+        "Real connection states for Production Engine, Automation Engine, and Illustrator Native.",
+        "Project, template, history, favorites, batch-processing, and API integration workspaces.",
+        "No fabricated projects, usage figures, credits, or completion states.",
+      ],
     },
     illustrator: {
       title: "Illustrator Automation",
-      intro: "Nesting AI is built to work with Adobe Illustrator through the Native Bridge.",
-      items: ["Connect the authorized desktop device to Illustrator Native.", "Run vector preparation and production automation in the background.", "Keep the exact approved artwork as the master source throughout processing.", "Export support will activate through the connected engine and Native Bridge.", "Until the bridge is configured, the interface shows a genuine configuration-required state."],
+      intro:
+        "Nesting AI is built to work with Adobe Illustrator through the Native Bridge.",
+      items: [
+        "Connect the authorized desktop device to Illustrator Native.",
+        "Run vector preparation and production automation in the background.",
+        "Keep the exact approved artwork as the master source throughout processing.",
+        "Export support will activate through the connected engine and Native Bridge.",
+        "Until the bridge is configured, the interface shows a genuine configuration-required state.",
+      ],
     },
     pricing: {
       title: "Plans & Pricing",
-      intro: "Membership and payment services are being prepared for integration.",
-      items: ["Free Plan: access to the core workspace with connected-service limits.", "Plus Plan: the active testing tier for the authorized test account.", "Pro Plan: intended for higher-volume production and advanced native automation.", "Final prices, credit packs, renewals, and payment activation will appear only after the payment gateway is connected."],
+      intro:
+        "Choose a monthly membership or pay only for the generations you use.",
+      items: [
+        "Daily limits reset after 24 hours.",
+        "Generation is locked when a daily or monthly limit is exhausted.",
+        "An expired membership without renewal returns to the Normal plan.",
+        "Renewal reminders begin daily from 10 days before expiry.",
+      ],
     },
   } as const;
+  const pricingPlans = [
+    {
+      name: "Plus",
+      price: "$19.99",
+      period: "/ month",
+      limits: [
+        "5 generations per day",
+        "40 generations per month",
+        "Production quality access",
+      ],
+    },
+    {
+      name: "Pro",
+      price: "$49.99",
+      period: "/ month",
+      limits: [
+        "15 generations per day",
+        "100 generations per month",
+        "Advanced native automation",
+      ],
+    },
+    {
+      name: "Pay As You Go",
+      price: "$0.60–$0.80",
+      period: "/ generation",
+      limits: [
+        "Balance deducted per creation",
+        "No monthly membership required",
+        "Pay only when you generate",
+      ],
+    },
+  ];
   return (
     <div className="home">
       <header className="topbar">
@@ -257,10 +317,7 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
               Get Started
               <ArrowRight />
             </button>
-            <button
-              className="ghost-button"
-              onClick={() => setInfo("how")}
-            >
+            <button className="ghost-button" onClick={() => setInfo("how")}>
               ◉ &nbsp; How It Works
             </button>
           </div>
@@ -275,13 +332,67 @@ function Home({ go, profile }: { go: (p: Page) => void; profile: () => void }) {
       <footer>© 2026 Atherious Labs. All rights reserved.</footer>
       {info && (
         <div className="home-modal-wrap" onClick={() => setInfo("")}>
-          <section className="home-modal" onClick={(event) => event.stopPropagation()} role="dialog" aria-modal="true" aria-label={content[info].title}>
-            <button className="home-modal-close" onClick={() => setInfo("")} aria-label="Close"><X /></button>
+          <section
+            className="home-modal"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={content[info].title}
+          >
+            <button
+              className="home-modal-close"
+              onClick={() => setInfo("")}
+              aria-label="Close"
+            >
+              <X />
+            </button>
             <span>NESTING AI</span>
             <h2>{content[info].title}</h2>
             <p>{content[info].intro}</p>
-            <div>{content[info].items.map((item, index) => <article key={item}><b>{String(index + 1).padStart(2, "0")}</b><p>{item}</p></article>)}</div>
-            {info === "pricing" && <button className="glow-button modal-cta" onClick={() => go("billing")}>Open Plan & Billing <ArrowRight /></button>}
+            {info === "pricing" ? (
+              <>
+                <div className="pricing-grid">
+                  {pricingPlans.map((plan) => (
+                    <article
+                      className={`pricing-card ${plan.name === "Pro" ? "featured" : ""}`}
+                      key={plan.name}
+                    >
+                      <span>{plan.name}</span>
+                      <h3>
+                        {plan.price} <small>{plan.period}</small>
+                      </h3>
+                      <ul>
+                        {plan.limits.map((limit) => (
+                          <li key={limit}>{limit}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+                <div className="pricing-rules">
+                  {content.pricing.items.map((item) => (
+                    <p key={item}>{item}</p>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div>
+                {content[info].items.map((item, index) => (
+                  <article key={item}>
+                    <b>{String(index + 1).padStart(2, "0")}</b>
+                    <p>{item}</p>
+                  </article>
+                ))}
+              </div>
+            )}
+            {info === "pricing" && (
+              <button
+                className="glow-button modal-cta"
+                onClick={() => go("billing")}
+              >
+                Open Plan & Billing <ArrowRight />
+              </button>
+            )}
           </section>
         </div>
       )}
